@@ -84,6 +84,8 @@ function handleChoices(move){
     else {
       result = "Defeat";
     }
+
+    rounds[currentRound - 1].playerMove = playerChoice;
 }
 
 document.getElementById('rock-button').addEventListener('click', function() {
@@ -97,3 +99,32 @@ document.getElementById('paper-button').addEventListener('click', function() {
 document.getElementById('scissors-button').addEventListener('click', function() {
   handleChoices('scissors');
 });
+
+function roundProgress(){
+  const roundNumber = rounds[currentRound - 1].currentRound += 1;
+  if(roundNumber <= 5){
+    const nextRoundId = rounds[currentRound - 1].id;
+    
+    fetch(`YOUR_API_URL/rounds/${nextRoundId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(`Round ${currentRound} loaded:`, data);
+      //clearat display
+    })
+    .catch(error => {
+      console.error('Error fetching next round:', error);
+    });
+  }
+  if (roundNumber > 5){
+    gameState = states[2];
+  }
+}
+
+function reviewGame(){
+  
+}

@@ -1,10 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
+
 body{
     height: 100vh;
+    font-family: Caveat, cursive;
+    background-color: rgb(233, 233, 222);
+}
+
+.title{
+    padding-bottom: 50px;
+}
+
+.title img{
+    width: 400px;
 }
 
 .new__game{
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+
+.start{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+
+.options button{
+    background: transparent;
+    border: none;
+}
+
+.options button img{
+    width: 250px;
+}
+
+.options button img:hover {
+    filter: drop-shadow(0 0 10px rgba(0, 183, 255, 0.8));
+    cursor: pointer;
+  }
+
+.game--button{
+    border: 2px dashed rgba(0, 0, 0, 0.601);
+    font-family: Caveat, cursive;
+    border-radius: 40px;
+    background-color: none;
+    font-size: 40px;
+    padding: 15px;
+    padding-right: 20px;
+    cursor: pointer;
+}
+
+.game--button:hover{
+    background-color: rgb(250, 238, 208);
 }
