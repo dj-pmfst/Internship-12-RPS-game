@@ -8,6 +8,19 @@ let playerScore = 0;
 
 let options = ["rock", "paper", "scissors"];
 
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelector('.start').classList.add('hidden');
+  document.querySelector('.game').classList.add('hidden');
+  document.querySelector('.result').classList.add('hidden');
+
+  const reviewButtons = document.querySelectorAll('.game--button');
+  reviewButtons.forEach(button => {
+      if(button.textContent === 'Review game') {
+          button.parentElement.classList.add('hidden');
+      }
+  });
+});
+
 function newGame(){
     const id = Date.now().toString();
     for(let i = 0; i < 5; i++){
@@ -31,24 +44,40 @@ function newGame(){
           .then(data => console.log('Round created:', data))
           .catch(error => console.error('Error:', error));
     };  
-    document.getElementsByClassName('start').disabled = false;
+    document.querySelector('.new__game').classList.add('hidden');
+    document.querySelector('.start').classList.remove('hidden');
 };
 
-document.getElementsByClassName('new__game').addEventListener('click', newGame());
+document.addEventListener('DOMContentLoaded', function() {
+  const newGameButton = document.querySelector('.new__game .game--button');
+  newGameButton.addEventListener('click', newGame);
+});
 
 function start(){
-    document.getElementsByClassName(start).disabled = false;
-    document.getElementsByClassName('new__game').disabled = true;
+    document.querySelector('.start').classList.add('hidden');
+    document.querySelector('.game').classList.remove('hidden');
 
     currentRound = 1;
     gameState = states[1];
 
+    updateDisplay();
+
     fetch(`https://restful-api.dev/rounds?gameId=${currentGameId}&roundNumber=1`, {
-      method: 'GET'}).then(response => response.json()).then(data => {
-          let currentRoundData = data;
-          //dodt korisnik display 
-      })
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        let currentRoundData = data;
+        // ddot disply
+        updateDisplay();
+    })
+    .catch(error => console.error('Error:', error));
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  const startButton = document.querySelector('.start .game--button');
+  startButton.addEventListener('click', start);
+});
 
 function handleChoices(move){
     const roundId = rounds[currentRound - 1].id; 
@@ -86,25 +115,32 @@ function handleChoices(move){
     }
 
     rounds[currentRound - 1].playerMove = playerChoice;
+
+    updateDisplay();
+    roundProgress();
 }
 
-document.getElementById('rock-button').addEventListener('click', function() {
-  handleChoices('rock');
-});
-
-document.getElementById('paper-button').addEventListener('click', function() {
-  handleChoices('paper');
-});
-
-document.getElementById('scissors-button').addEventListener('click', function() {
-  handleChoices('scissors');
+document.addEventListener('DOMContentLoaded', function() {
+  const optionButtons = document.querySelectorAll('.options button');
+  optionButtons[0].addEventListener('click', function() {
+      handleChoices('rock');
+  });
+  optionButtons[1].addEventListener('click', function() {
+      handleChoices('paper');
+  });
+  optionButtons[2].addEventListener('click', function() {
+      handleChoices('scissors');
+  });
 });
 
 function roundProgress(){
   const roundNumber = rounds[currentRound - 1].currentRound += 1;
+
   if(roundNumber <= 5){
     const nextRoundId = rounds[currentRound - 1].id;
     
+    updateDisplay();
+
     fetch(`YOUR_API_URL/rounds/${nextRoundId}`, {
       method: 'GET',
       headers: {
@@ -122,9 +158,19 @@ function roundProgress(){
   }
   if (roundNumber > 5){
     gameState = states[2];
+    document.querySelector('.game').classList.add('hidden');
+    document.querySelector('.result').classList.remove('hidden');
   }
 }
 
 function reviewGame(){
-  
+
+}
+
+function updateDisplay() {
+  const scoreboard = document.querySelector('.scoreboard');
+  scoreboard.innerHTML = `
+      <div>Round: ${currentRound}</div>
+      <div>Score: ${playerScore}</div>
+  `;
 }

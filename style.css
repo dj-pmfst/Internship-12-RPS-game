@@ -1,9 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
 
+.hidden {
+    display: none !important;
+}
+
 body{
     height: 100vh;
     font-family: Caveat, cursive;
     background-color: rgb(233, 233, 222);
+    overflow-y: hidden;
+    border: 2px dashed rgba(0, 0, 0, 0.601);
+    color: rgba(0, 0, 0, 0.836);
+    border-radius: 20px;
 }
 
 .title{
@@ -26,14 +34,24 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100vh;
 }
 
 .game{
     display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 40px;
+    font-weight: 500;
+    height: 100vh;
+}
+
+.main{
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 40px;
 }
 
 .options button{
@@ -50,8 +68,17 @@ body{
     cursor: pointer;
   }
 
+.scoreboard{
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    justify-content: space-evenly;
+    height: 350px;
+}
+
 .game--button{
     border: 2px dashed rgba(0, 0, 0, 0.601);
+    color: rgba(0, 0, 0, 0.836);
     font-family: Caveat, cursive;
     border-radius: 40px;
     background-color: none;
