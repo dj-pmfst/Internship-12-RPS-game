@@ -1,8 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=ZCOOL+KuaiLe&display=swap');
 
 .hidden {
     display: none !important;
 }
+
+.image-text {
+    font-size: 100px;
+    font-weight: bold;
+    font-family: "ZCOOL KuaiLe", sans-serif;
+    background-image: url('media/metal-texture-1.jpg'); 
+    background-clip: text;
+    -webkit-background-clip: text; 
+    color: transparent;
+    display: inline-block;
+  }
 
 body{
     height: 100vh;
@@ -15,6 +26,10 @@ body{
 }
 
 .title{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding-bottom: 50px;
 }
 
@@ -90,4 +105,36 @@ body{
 
 .game--button:hover{
     background-color: rgb(250, 238, 208);
+}
+
+.result-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.result-window-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+}
+
+.result-window-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.result-window-content p {
+    font-size: 18px;
+    margin: 10px 0;
 }

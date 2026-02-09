@@ -8,19 +8,6 @@ let playerScore = 0;
 
 let options = ["rock", "paper", "scissors"];
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.start').classList.add('hidden');
-  document.querySelector('.game').classList.add('hidden');
-  document.querySelector('.result').classList.add('hidden');
-
-  const reviewButtons = document.querySelectorAll('.game--button');
-  reviewButtons.forEach(button => {
-      if(button.textContent === 'Review game') {
-          button.parentElement.classList.add('hidden');
-      }
-  });
-});
-
 function newGame(){
     const id = Date.now().toString();
     for(let i = 0; i < 5; i++){
@@ -48,11 +35,6 @@ function newGame(){
     document.querySelector('.start').classList.remove('hidden');
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  const newGameButton = document.querySelector('.new__game .game--button');
-  newGameButton.addEventListener('click', newGame);
-});
-
 function start(){
     document.querySelector('.start').classList.add('hidden');
     document.querySelector('.game').classList.remove('hidden');
@@ -74,11 +56,6 @@ function start(){
     .catch(error => console.error('Error:', error));
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  const startButton = document.querySelector('.start .game--button');
-  startButton.addEventListener('click', start);
-});
-
 function handleChoices(move){
     const roundId = rounds[currentRound - 1].id; 
     const computerMove = rounds[currentRound - 1].computerMove;
@@ -90,7 +67,7 @@ function handleChoices(move){
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        playerMove: playerChoice
+        playerMove: move
       })
     })
     .then(response => response.json())
@@ -117,21 +94,8 @@ function handleChoices(move){
     rounds[currentRound - 1].playerMove = playerChoice;
 
     updateDisplay();
-    roundProgress();
+    showResultModal(result, move, computerMove);
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  const optionButtons = document.querySelectorAll('.options button');
-  optionButtons[0].addEventListener('click', function() {
-      handleChoices('rock');
-  });
-  optionButtons[1].addEventListener('click', function() {
-      handleChoices('paper');
-  });
-  optionButtons[2].addEventListener('click', function() {
-      handleChoices('scissors');
-  });
-});
 
 function roundProgress(){
   const roundNumber = rounds[currentRound - 1].currentRound += 1;
@@ -163,6 +127,19 @@ function roundProgress(){
   }
 }
 
+function showResult(result, playerChoice, computerChoice) {
+  const window = document.querySelector('.result-window');
+  const resultText = document.getElementById('result-text');
+  const playerChoiceSpan = document.getElementById('player-choice');
+  const computerChoiceSpan = document.getElementById('computer-choice');
+
+  resultText.textContent = result + "!";
+  playerChoiceSpan.textContent = playerChoice;
+  computerChoiceSpan.textContent = computerChoice;
+
+  window.classList.remove('hidden');
+}
+
 function reviewGame(){
 
 }
@@ -174,3 +151,41 @@ function updateDisplay() {
       <div>Score: ${playerScore}</div>
   `;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelector('.start').classList.add('hidden');
+  document.querySelector('.game').classList.add('hidden');
+  document.querySelector('.result').classList.add('hidden');
+  document.querySelector('.result-window').classList.add('hidden');
+  
+  const reviewButtons = document.querySelectorAll('.game--button');
+  reviewButtons.forEach(button => {
+      if(button.textContent === 'Review game') {
+          button.parentElement.classList.add('hidden');
+      }
+  });
+
+  const newGameButton = document.querySelector('.new__game .game--button');
+  newGameButton.addEventListener('click', newGame);
+
+  const startButton = document.querySelector('.start .game--button');
+  startButton.addEventListener('click', start);
+
+  const optionButtons = document.querySelectorAll('.options button');
+  optionButtons[0].addEventListener('click', function() {
+      handleChoices('rock');
+  });
+  optionButtons[1].addEventListener('click', function() {
+      handleChoices('paper');
+  });
+  optionButtons[2].addEventListener('click', function() {
+      handleChoices('scissors');
+  });
+
+  const continueBtn = document.getElementById('continue-btn');
+  continueBtn.addEventListener('click', function() {
+      document.querySelector('.result-window').classList.add('hidden');
+
+      roundProgress();
+  });
+});
