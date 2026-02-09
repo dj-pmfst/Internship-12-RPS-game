@@ -5,14 +5,22 @@ let currentRound = 0;
 let rounds = [];
 let gameState = states[0];
 let playerScore = 0;
+let previousGameRounds = [];
+let draws = 0;
 
 let options = ["rock", "paper", "scissors"];
 
 function newGame(){
     const id = Date.now().toString();
     currentGameId = id;
+
+    if(rounds.length > 0 && gameState === states[2]) {
+        previousGameRounds = [...rounds]; 
+    }
+    
     rounds = []; 
     playerScore = 0; 
+    draws = 0;
     
     let promises = []; 
     
@@ -34,7 +42,8 @@ function newGame(){
             currentRound: i + 1,
             computerChoice: round.data.computerChoice,
             playerChoice: "pending",
-            playerScore: 0
+            playerScore: 0,
+            result: null
         };
         rounds.push(localRound);
 
@@ -106,6 +115,7 @@ function handleChoices(move){
 
     if (move === computerMove) {
       result = "Draw";
+      draws += 1;
     } else if ((move === 'rock' && computerMove === 'scissors') || 
                (move === 'scissors' && computerMove === 'paper') || 
                (move === 'paper' && computerMove === 'rock')) {
@@ -117,6 +127,7 @@ function handleChoices(move){
 
     currentRoundData.playerChoice = move;
     currentRoundData.playerScore = playerScore;
+    currentRoundData.result = result; 
 
     updateDisplay();
     if(currentRound < 5){ 
@@ -156,26 +167,79 @@ function showFinalResult(playerScore) {
   const window = document.querySelector('.final-result-window');
   const resultText = document.getElementById('final-result-text');
   const score = document.getElementById('score');
+  let result = "";
+  let computerScore = 5 - playerScore - draws;
 
-  if(playerScore >= 3){
+  if(playerScore > computerScore){
     document.getElementById('lose').classList.add('hidden');
+    document.getElementById('win').classList.remove('hidden');
     document.querySelector('.final-result-window-content').style.backgroundColor = "rgb(178, 247, 161)";  
     result = "You win";
   }
+  else if(draws ===5 || playerScore === computerScore){
+    document.getElementById('lose').classList.add('hidden');
+    document.getElementById('win').classList.add('hidden'); 
+    result = "Draw";
+  }
   else{
     document.getElementById('win').classList.add('hidden');
+    document.getElementById('lose').classList.remove('hidden');
     document.querySelector('.final-result-window-content').style.backgroundColor = "rgb(247, 161, 161)";  
     result = "You lose";
   }
 
   resultText.textContent = result + "!";
-  score.textContent = playerScore + '-' + (5-playerScore);
+  score.textContent = playerScore + '-' + computerScore;
 
   window.classList.remove('hidden');
 }
 
 function reviewGame(){
+    const reviewDiv = document.getElementById('rounds-review');
+    const roundsToReview = previousGameRounds.length > 0 ? previousGameRounds : rounds;
+    
+    if(roundsToReview.length === 0 || !roundsToReview[0].playerChoice || roundsToReview[0].playerChoice === "pending") {
+        reviewDiv.innerHTML = '<p>No completed game to review yet. Play a game first!</p>';
+    } else {
+        let reviewHTML = '';
+        
+        roundsToReview.forEach((round, index) => {
+            const resultClass = round.result ? round.result.toLowerCase() : '';
+            
+            reviewHTML += `
+                <div class="round-item ${resultClass}">
+                    <h3>Round ${round.currentRound}</h3>
+                    <p><strong>Your choice:</strong> ${round.playerChoice}</p>
+                    <p><strong>Computer choice:</strong> ${round.computerChoice}</p>
+                    <p><strong>Result:</strong> ${round.result}</p>
+                    <p><strong>Score after round:</strong> ${round.playerScore}</p>
+                </div>
+            `;
+        });
+        
+        reviewDiv.innerHTML = reviewHTML;
+    }
+    
+    document.querySelector('.review-window').classList.remove('hidden');
+}
 
+function resetToHome() {
+  document.querySelector('.start').classList.add('hidden');
+  document.querySelector('.game').classList.add('hidden');
+  document.querySelector('.result-window').classList.add('hidden');
+  document.querySelector('.final-result-window').classList.add('hidden');
+  
+  document.querySelector('.new__game').classList.remove('hidden');
+
+  const reviewButtons = document.querySelectorAll('.game--button');
+  reviewButtons.forEach(button => {
+      if(button.textContent === 'Review game') {
+          button.parentElement.classList.remove('hidden');
+      }
+  });
+
+  currentRound = 0;
+  gameState = states[0];
 }
 
 function updateDisplay() {
@@ -191,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('.game').classList.add('hidden');
   document.querySelector('.result-window').classList.add('hidden');
   document.querySelector('.final-result-window').classList.add('hidden');
+  document.querySelector('.review-window').classList.add('hidden');
   
   const reviewButtons = document.querySelectorAll('.game--button');
   reviewButtons.forEach(button => {
@@ -220,5 +285,21 @@ document.addEventListener('DOMContentLoaded', function() {
   continueBtn.addEventListener('click', function() {
       document.querySelector('.result-window').classList.add('hidden');
       roundProgress();
+  });
+  
+  const finalContinueBtn = document.getElementById('final-continue-btn');
+  finalContinueBtn.addEventListener('click', resetToHome);
+  
+  const reviewGameButton = document.querySelector('.game--button');
+  const allButtons = document.querySelectorAll('.game--button');
+  allButtons.forEach(button => {
+      if(button.textContent.trim() === 'Review game') {
+          button.addEventListener('click', reviewGame);
+      }
+  });
+  
+  const reviewCloseBtn = document.getElementById('review-close-btn');
+  reviewCloseBtn.addEventListener('click', function() {
+      document.querySelector('.review-window').classList.add('hidden');
   });
 });

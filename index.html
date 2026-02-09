@@ -14,8 +14,26 @@
             <div class="image-text">SCISSORS</div>
         </div>
         <button class="game--button">New game</button>
+        <div><button class="game--button">Review game</button></div>  
     </div>
-    <div class="start"><button class="game--button">Start</button></div>
+    <div class="review-window hidden">
+        <div class="review-window-content">
+            <h2>Game Review</h2>
+            <div id="rounds-review"></div>
+            <button class="game--button" id="review-close-btn">Close</button>
+        </div>
+    </div>
+    <div>
+        <div class="start"><button class="game--button">Start</button></div>
+        <div class="achievements">
+            <button class="game--button">Achievements</button>
+            <div class="achievemt-list">
+                Win all 5 rounds
+                Get a victory at least once with each option 
+                Gather all achievements
+            </div>
+        </div>        
+    </div>
     <div class="game">
         <div class="main">
             Make a choice
@@ -47,10 +65,9 @@
             <div id="score"></div>
             <img src="media/brokenž.png" id="lose">
             <img src="media/win.png" id="win">
-            <button class="game--button" id="continue-btn">Continue</button>   
+            <button class="game--button" id="final-continue-btn">Continue</button>   
         </div>
-    </div> 
-    <div class><button class="game--button">Review game</button></div>     
+    </div>    
     <script src="script.js"></script>
 </body>
 </html>
