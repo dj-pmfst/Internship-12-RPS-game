@@ -10,17 +10,35 @@ let options = ["rock", "paper", "scissors"];
 
 function newGame(){
     const id = Date.now().toString();
+    currentGameId = id;
+    rounds = []; 
+    playerScore = 0; 
+    
+    let promises = []; 
+    
     for(let i = 0; i < 5; i++){
         const round = {
-            currentGameId: id,
-            currentRound: i,
-            computerChoice: options[Math.floor(Math.random() * 3)],
-            playerChoice: states[1],
-            playerScore: 0            
+            name: `Game ${id} - Round ${i + 1}`, 
+            data: {
+                currentGameId: id,
+                currentRound: i + 1,
+                computerChoice: options[Math.floor(Math.random() * 3)],
+                playerChoice: "pending",
+                playerScore: 0
+            }
         };
-        rounds.push(round);
 
-        fetch('https://restful-api.dev/rounds', {
+        const localRound = {
+            id: null,
+            currentGameId: id,
+            currentRound: i + 1,
+            computerChoice: round.data.computerChoice,
+            playerChoice: "pending",
+            playerScore: 0
+        };
+        rounds.push(localRound);
+
+        const promise = fetch('https://api.restful-api.dev/objects', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -28,12 +46,21 @@ function newGame(){
             body: JSON.stringify(round)
           })
           .then(response => response.json())
-          .then(data => console.log('Round created:', data))
+          .then(data => {
+              console.log('Round created:', data);
+              rounds[i].id = data.id;
+          })
           .catch(error => console.error('Error:', error));
-    };  
-    document.querySelector('.new__game').classList.add('hidden');
-    document.querySelector('.start').classList.remove('hidden');
-};
+          
+        promises.push(promise);
+    }
+
+    Promise.all(promises).then(() => {
+        console.log('All rounds created:', rounds);
+        document.querySelector('.new__game').classList.add('hidden');
+        document.querySelector('.start').classList.remove('hidden');
+    });
+}
 
 function start(){
     document.querySelector('.start').classList.add('hidden');
@@ -43,87 +70,72 @@ function start(){
     gameState = states[1];
 
     updateDisplay();
-
-    fetch(`https://restful-api.dev/rounds?gameId=${currentGameId}&roundNumber=1`, {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        let currentRoundData = data;
-        // ddot disply
-        updateDisplay();
-    })
-    .catch(error => console.error('Error:', error));
-};
+}
 
 function handleChoices(move){
-    const roundId = rounds[currentRound - 1].id; 
-    const computerMove = rounds[currentRound - 1].computerMove;
-    const result = null;
+    const currentRoundData = rounds[currentRound - 1];
+    const roundId = currentRoundData.id; 
+    const computerMove = currentRoundData.computerChoice;
+    let result = "";
 
-    fetch(`https://restful-api.dev/rounds/${roundId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        playerMove: move
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Round updated:', data);
-    })
-    .catch(error => {
-      console.error('Error updating round:', error);
-    });
+    if (roundId) {
+        fetch(`https://api.restful-api.dev/objects/${roundId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: `Game ${currentGameId} - Round ${currentRound}`,
+            data: {
+                currentGameId: currentGameId,
+                currentRound: currentRound,
+                computerChoice: computerMove,
+                playerChoice: move,
+                playerScore: playerScore
+            }
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Round updated:', data);
+        })
+        .catch(error => {
+          console.error('Error updating round:', error);
+        });
+    }
 
     if (move === computerMove) {
       result = "Draw";
-    }
-    
-    if ((move === 'rock' && computerMove === 'scissors') || (move === 'scissors' && computerMove === 'paper') || (move === 'paper' && computerMove === 'rock')) 
-    {
+    } else if ((move === 'rock' && computerMove === 'scissors') || 
+               (move === 'scissors' && computerMove === 'paper') || 
+               (move === 'paper' && computerMove === 'rock')) {
       result = "Victory";
-      rounds[currentRound - 1].playerScore += 1;
-    } 
-    else {
+      playerScore += 1; 
+    } else {
       result = "Defeat";
     }
 
-    rounds[currentRound - 1].playerMove = playerChoice;
+    currentRoundData.playerChoice = move;
+    currentRoundData.playerScore = playerScore;
 
     updateDisplay();
-    showResultModal(result, move, computerMove);
+    if(currentRound < 5){ 
+      showResult(result, move, computerMove);
+    }
+    else {
+      showFinalResult(playerScore)
+    }
 }
 
 function roundProgress(){
-  const roundNumber = rounds[currentRound - 1].currentRound += 1;
-
-  if(roundNumber <= 5){
-    const nextRoundId = rounds[currentRound - 1].id;
+  if(currentRound < 5){
+    currentRound += 1; 
     
     updateDisplay();
-
-    fetch(`YOUR_API_URL/rounds/${nextRoundId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(`Round ${currentRound} loaded:`, data);
-      //clearat display
-    })
-    .catch(error => {
-      console.error('Error fetching next round:', error);
-    });
-  }
-  if (roundNumber > 5){
+  } else {
     gameState = states[2];
     document.querySelector('.game').classList.add('hidden');
-    document.querySelector('.result').classList.remove('hidden');
+    document.querySelector('.final-result-window').classList.remove('hidden');
   }
 }
 
@@ -136,6 +148,28 @@ function showResult(result, playerChoice, computerChoice) {
   resultText.textContent = result + "!";
   playerChoiceSpan.textContent = playerChoice;
   computerChoiceSpan.textContent = computerChoice;
+
+  window.classList.remove('hidden');
+}
+
+function showFinalResult(playerScore) {
+  const window = document.querySelector('.final-result-window');
+  const resultText = document.getElementById('final-result-text');
+  const score = document.getElementById('score');
+
+  if(playerScore >= 3){
+    document.getElementById('lose').classList.add('hidden');
+    document.querySelector('.final-result-window-content').style.backgroundColor = "rgb(178, 247, 161)";  
+    result = "You win";
+  }
+  else{
+    document.getElementById('win').classList.add('hidden');
+    document.querySelector('.final-result-window-content').style.backgroundColor = "rgb(247, 161, 161)";  
+    result = "You lose";
+  }
+
+  resultText.textContent = result + "!";
+  score.textContent = playerScore + '-' + (5-playerScore);
 
   window.classList.remove('hidden');
 }
@@ -155,8 +189,8 @@ function updateDisplay() {
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('.start').classList.add('hidden');
   document.querySelector('.game').classList.add('hidden');
-  document.querySelector('.result').classList.add('hidden');
   document.querySelector('.result-window').classList.add('hidden');
+  document.querySelector('.final-result-window').classList.add('hidden');
   
   const reviewButtons = document.querySelectorAll('.game--button');
   reviewButtons.forEach(button => {
@@ -185,7 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const continueBtn = document.getElementById('continue-btn');
   continueBtn.addEventListener('click', function() {
       document.querySelector('.result-window').classList.add('hidden');
-
       roundProgress();
   });
 });

@@ -35,15 +35,22 @@
     <div class="result-window hidden">
         <div class="result-window-content">
             <h2 id="result-text"></h2>
-            <p>You chose: <span id="player-choice"></span></p>
-            <p>Computer chose: <span id="computer-choice"></span></p>
+            <p>You chose - <span id="player-choice"></span></p>
+            <p>Computer chose - <span id="computer-choice"></span></p>
             <button class="game--button" id="continue-btn">Continue</button>
         </div>
     </div>     
-    <div class><button class="game--button">Review game</button></div>
-    <div class="result">
-        <button class="game--button">Continue</button>
-    </div>
+    <div class="final-result-window hidden">
+        <div class="final-result-window-content">
+            <h2 id="final-result-text"></h2>
+            <p>Final Score</p>
+            <div id="score"></div>
+            <img src="media/brokenž.png" id="lose">
+            <img src="media/win.png" id="win">
+            <button class="game--button" id="continue-btn">Continue</button>   
+        </div>
+    </div> 
+    <div class><button class="game--button">Review game</button></div>     
     <script src="script.js"></script>
 </body>
 </html>
